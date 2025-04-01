@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Monitoring</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            padding: 20px;
+        }
+        .status-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .status-box {
+            width: 200px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #2e2e2e;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        .status-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .status-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .online { color: #4CAF50; }
+        .offline { color: #f44336; }
+        .error { color: #f44336; }
+    </style>
+</head>
+<body>
+    <h1>Server Monitoring</h1>
+    <div class="status-container">
+        <div class="status-box">
+            <div class="status-title">Server Status</div>
+            <div class="status-value" id="server-status">Checking...</div>
+        </div>
+        <div class="status-box">
+            <div class="status-title">CPU Usage</div>
+            <div class="status-value" id="cpu-usage">Loading...</div>
+        </div>
+        <div class="status-box">
+            <div class="status-title">RAM Usage</div>
+            <div class="status-value" id="ram-usage">Loading...</div>
+        </div>
+        <div class="status-box">
+            <div class="status-title">Database Status</div>
+            <div class="status-value" id="db-status">Loading...</div>
+        </div>
+        <div class="status-box">
+            <div class="status-title">Active Users</div>
+            <div class="status-value" id="active-users">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchServerStatus() {
+            try {
+                // Ganti URL ini sesuai dengan URL Serveo yang digunakan
+                let response = await fetch("https://hazelnut.serveo.net/status");
+                
+                // Jika server memberi respons yang valid
+                if (response.ok) {
+                    let data = await response.json();
+
+                    // Memperbarui status di halaman
+                    document.getElementById("server-status").textContent = data.server_online ? "Online" : "Offline";
+                    document.getElementById("server-status").className = data.server_online ? "status-value online" : "status-value offline";
+                    document.getElementById("cpu-usage").textContent = data.cpu + "%";
+                    document.getElementById("ram-usage").textContent = data.ram + "%";
+                    document.getElementById("db-status").textContent = data.database ? "Online" : "Offline";
+                    document.getElementById("active-users").textContent = data.active_users;
+                } else {
+                    throw new Error("Server not reachable");
+                }
+            } catch (error) {
+                // Menangani kesalahan dengan menampilkan status Error
+                document.getElementById("server-status").textContent = "Error";
+                document.getElementById("server-status").className = "status-value error";
+                document.getElementById("cpu-usage").textContent = "Error";
+                document.getElementById("ram-usage").textContent = "Error";
+                document.getElementById("db-status").textContent = "Error";
+                document.getElementById("active-users").textContent = "Error";
+            }
+        }
+
+        // Memanggil fungsi secara berkala setiap 5 detik
+        setInterval(fetchServerStatus, 5000);
+        fetchServerStatus();
+    </script>
+</body>
+</html>
